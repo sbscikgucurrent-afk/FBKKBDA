@@ -1,0 +1,55 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  icNumber     String   @unique
+  studentId    String   @unique
+  program      String
+  semester     Int
+  phone        String
+  passwordHash String
+  role         String   @default("STUDENT") // STUDENT | ADMIN
+  status       String   @default("ACTIVE")  // ACTIVE | INACTIVE
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  pickups      Pickup[]
+}
+
+model Food {
+  id          String       @id @default(uuid())
+  name        String
+  category    String
+  imageUrl    String?
+  status      String       @default("ACTIVE") // ACTIVE | INACTIVE
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  pickupItems PickupItem[]
+}
+
+model Pickup {
+  id         String       @id @default(uuid())
+  userId     String
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pickupDate DateTime     @default(now())
+  pickupTime String
+  createdAt  DateTime     @default(now())
+  items      PickupItem[]
+}
+
+model PickupItem {
+  id        String   @id @default(uuid())
+  pickupId  String
+  pickup    Pickup   @relation(fields: [pickupId], references: [id], onDelete: Cascade)
+  foodId    String
+  food      Food     @relation(fields: [foodId], references: [id], onDelete: Cascade)
+  foodName  String
+  createdAt DateTime @default(now())
+}
